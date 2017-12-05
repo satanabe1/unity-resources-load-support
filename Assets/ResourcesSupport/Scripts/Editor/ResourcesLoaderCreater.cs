@@ -8,7 +8,6 @@ using UnityEditor;
 
 namespace ResourcesSupport
 {
-
     /// <summary>
     /// Resources.Loadをサポートするクラスを作成するクラス
     /// </summary>
@@ -38,21 +37,24 @@ namespace ResourcesSupport
         /// 無視する拡張子
         /// </summary>
         private static readonly string[] IgnoreExtensions = new string[]
-        {
-            ".meta"
-        };
+            {
+                ".meta"
+            };
 
         [MenuItem("ResourcesSupport/Create Loader")]
         public static void Create()
         {
             var builder = new StringBuilder();
 
-            // Using定義
-            builder.AppendLine("using UnityEngine;");
+            // インデントの深さ
+            int indent = 0;
 
-            // クラス定義開始
-            builder.AppendLine("public static class " + CreateClassName);
-            builder.AppendLine("{");
+            // Using記述
+            builder.AppendUsing(indent, "UnityEngine");
+
+            // クラス記述開始
+            builder.AppendClass(CreateClassName, indent, "static", "Resources.Loadをラップしたクラスです", "※自動生成されたクラスです");
+            indent++;
             {
                 // Assets内にあるResourcesフォルダの全てのパスを取得
                 var resourcesPaths = Directory.GetDirectories("Assets", "Resources", SearchOption.AllDirectories);
@@ -67,33 +69,34 @@ namespace ResourcesSupport
                         return path.Substring(startIndex, length);
                     });
 
-                // ファイルパスからファイル名取得
+                // ファイルパスからファイル名を取得
                 var fileNames = filePaths.Select(path => Path.GetFileNameWithoutExtension(path));
 
-                // Enum定義開始
-                builder.AppendLine("public enum " + EditEnumName);
-                builder.AppendLine("{");
-                {
-                    builder.AppendLine(string.Join(",\n", fileNames.ToArray()));
-                }
-                builder.AppendLine("}");
+                // Enum記述開始
+                builder.AppendEnum(EditEnumName, fileNames, indent);
 
-                // ファイルパス配列定義開始
-                builder.AppendLine(string.Format("private static readonly string[] {0} = new string[]", EditPathArrayName));
-                builder.AppendLine("{");
+                // パス配列記述開始
+                builder.AppendLineFormat("{0}private static readonly string[] {1} = new string[]", StringBuilderExtension.GetIndentString(indent), EditPathArrayName);
+                builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "{");
+                indent++;
                 {
-                    builder.AppendLine(string.Join(",\n", filePaths.Select(path => "\"" + path + "\"").ToArray()));
+                    builder.AppendLine(StringBuilderExtension.Join(filePaths, indent, "\"", "\""));
                 }
-                builder.AppendLine("};");
+                indent--;
+                builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "};");
 
-                builder.AppendLine(string.Format("public static T {0}<T>({1} name) where T : UnityEngine.Object", EditMethodName, EditEnumName));
-                builder.AppendLine("{");
+                // 取得関数記述開始
+                builder.AppendLineFormat("{0}public static T {1}<T>({2} name) where T : UnityEngine.Object", StringBuilderExtension.GetIndentString(indent), EditMethodName, EditEnumName);
+                builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "{");
+                indent++;
                 {
-                    builder.AppendLine(string.Format("return Resources.Load<T>({0}[(int){1}]);", EditPathArrayName, "name"));
+                    builder.AppendLineFormat("{0}return Resources.Load<T>({1}[(int){2}]);", StringBuilderExtension.GetIndentString(indent), EditPathArrayName, "name");
                 }
-                builder.AppendLine("}");
+                indent--;
+                builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "}");
             }
-            builder.AppendLine("}");
+            indent--;
+            builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "}");
 
             // スクリプト作成
             File.WriteAllText("Assets/" + CreateClassName + ".cs", builder.ToString(), Encoding.UTF8);
@@ -113,8 +116,8 @@ namespace ResourcesSupport
             }
 
             return filePathList
-            .Where(path => !ignoreExtensions.Contains(Path.GetExtension(path))) // 無視する拡張子のファイルをフィルタリング
-            .Select(path => path.Replace("\\", "/"));                           // ファイルパスの「￥」を「/」に変換（WindowsとMacの差を吸収するため）
+                .Where(path => !ignoreExtensions.Contains(Path.GetExtension(path))) // 無視する拡張子のファイルをフィルタリング
+                .Select(path => path.Replace("\\", "/"));                           // ファイルパスの「￥」を「/」に変換（WindowsとMacの差を吸収するため）
         }
     }
 }
