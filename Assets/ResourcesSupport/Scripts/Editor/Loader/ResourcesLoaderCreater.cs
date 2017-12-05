@@ -44,8 +44,22 @@ namespace ResourcesSupport
             int indent = 0;
 
             // Using記述
-            builder.AppendUsing(indent, setting);
-            builder.AppendUsing(indent, setting.parameters);
+            var usingsList = new List<IUsings>();
+            usingsList.Add(setting);
+            usingsList.AddRange(setting.parameters);
+
+            var usingNames = new HashSet<string>();
+            foreach (var usings in usingsList)
+            {
+                foreach (var names in usings.usings)
+                {
+                    foreach(var name in names) 
+                    {
+                        usingNames.Add(names);
+                    }
+                }
+            }
+            builder.AppendUsing(indent, usingNames.ToArray());
 
             // クラス記述開始
             builder.AppendClass(setting.createClassName, indent, "static", "Resources.Loadをラップしたクラスです", "※自動生成されたクラスです");
@@ -95,7 +109,7 @@ namespace ResourcesSupport
                     builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "{");
                     indent++;
                     {
-                        builder.AppendLineFormat("{0}return Resources.Load<1>({2}[(int){3}]);", StringBuilderExtension.GetIndentString(indent), parameter.typeName, editPathArrayName, argumentName);
+                        builder.AppendLineFormat("{0}return Resources.Load<{1}>({2}[(int){3}]);", StringBuilderExtension.GetIndentString(indent), parameter.typeName, editPathArrayName, argumentName);
                     }
                     indent--;
                     builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "}");
@@ -107,7 +121,7 @@ namespace ResourcesSupport
             // スクリプト作成
             var createPath = string.IsNullOrEmpty(setting.createPath) ? "Assets" : Path.Combine("Assets", setting.createPath);
             File.WriteAllText(Path.Combine(createPath, setting.createClassName + ".cs"), builder.ToString(), Encoding.UTF8);
-            AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
+            AssetDatabase.Refresh();
         }
 
         /// <summary>

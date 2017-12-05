@@ -34,6 +34,14 @@ namespace ResourcesSupport
             }
         }
 
+        public static void AppendUsing(this StringBuilder builder, int indent, params IUsings[] usings)
+        {
+            foreach (var editUsings in usings)
+            {
+                builder.AppendUsing(indent, editUsings.usings);
+            }
+        }
+
         public static void AppendClass(this StringBuilder builder, string name, int indent = 0, string modifier = "", params string[] summaryArray)
         {
             builder.AppendSummary(indent, summaryArray);
