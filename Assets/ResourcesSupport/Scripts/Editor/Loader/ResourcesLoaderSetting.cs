@@ -18,5 +18,7 @@ namespace ResourcesSupport
                 return editUsings;
             }
         }
+
+        public bool isAuto;
     }
 }
