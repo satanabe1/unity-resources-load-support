@@ -9,6 +9,9 @@ namespace ResourcesSupport
     {
         private static readonly char IndentChar = ' ';
         private static readonly int IndentLength = 4;
+        private static readonly string FirstIdentifierPattern = @"(\p{Ll}|\p{Lu}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl})";
+        private static readonly Regex NonIdentifierRegex = new Regex(string.Format(@"^[^{0}]|\W", FirstIdentifierPattern));
+        private static readonly char ReplaceChar = '_';
 
         public static void AppendLineFormat(this StringBuilder builder, string format, params object[] arg0)
         {
@@ -58,7 +61,7 @@ namespace ResourcesSupport
             var indentString = GetIndentString(indent);
             builder.AppendLine(indentString + "public enum " + name);
             builder.AppendLine(indentString + "{");
-            builder.AppendLine(Join(elements, indent + 1, elementPrefix, elementSuffix));
+            builder.AppendLine(Join(elements.Select(element => ConvertEnumName(element)), indent + 1, elementPrefix, elementSuffix));
             builder.AppendLine(indentString + "}");
         }
 
@@ -88,6 +91,23 @@ namespace ResourcesSupport
         public static string GetIndentString(int indent)
         {
             return new string(IndentChar, indent * IndentLength);
+        }
+
+        private static string ConvertEnumName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return string.Empty;
+            }
+
+            var nameChars = name.ToCharArray();
+            foreach (Match match in NonIdentifierRegex.Matches(name))
+            {
+                nameChars[match.Index] = ReplaceChar;
+            }
+
+            // キーワードと被ってしまった時のために「@」をつけておく
+            return "@" + new string(nameChars);
         }
     }
 }
