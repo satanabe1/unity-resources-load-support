@@ -34,14 +34,12 @@ namespace ResourcesSupport
 
         private static readonly string[] LoadNames = new string[]
         {
-            "Load",
-            "LoadAll",
-            "LoadAsync",
+            "Load", "LoadAll", "LoadAsync",
         };
 
         private static readonly string[] ReturnNamesFormat = new string[]
         {
-            "{0}", "{0}[]", "ResourceRequest"
+            "{0}", "{0}[]", "ResourceRequest",
         };
 
         /// <summary>
@@ -102,8 +100,15 @@ namespace ResourcesSupport
                             return path.Substring(startIndex, length);
                         });
 
+                    if (paths.Count() == 0)
+                    {
+                        continue;
+                    }
+
                     // ファイルパスからファイル名を取得
                     var fileNames = paths.Select(path => Path.GetFileNameWithoutExtension(path));
+
+                    builder.AppendLineFormat("#region {0}", parameter.typeName);
 
                     // Enum記述開始
                     var editEnumName = string.Format(EnumNameFormat, parameter.typeName);
@@ -140,6 +145,8 @@ namespace ResourcesSupport
                         indent--;
                         builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "}");
                     }
+
+                    builder.AppendLine("#endregion");
                 }
             }
             indent--;
