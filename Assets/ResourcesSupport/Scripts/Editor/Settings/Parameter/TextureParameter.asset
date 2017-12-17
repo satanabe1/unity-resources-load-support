@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Name: TextureParameter
   m_EditorClassIdentifier: 
   typeName: Texture
+  editLoadType: 1
   targetExtensions:
   - PSD
   - TIFF
