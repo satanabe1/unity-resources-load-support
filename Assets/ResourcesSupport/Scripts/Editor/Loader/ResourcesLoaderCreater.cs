@@ -5,9 +5,18 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace ResourcesSupport
 {
+    [Flags]
+    public enum LoadType
+    {
+        Load = 1,
+        LoadAll = 1 << 1,
+        LoadAsync = 1 << 2,
+    }
+
     /// <summary>
     /// Resources.Loadをサポートするクラスを作成するクラス
     /// </summary>
@@ -23,10 +32,17 @@ namespace ResourcesSupport
         /// </summary>
         private static readonly string PathArrayNameFormat = "{0}Paths";
 
-        /// <summary>
-        /// 記述するメソッド名
-        /// </summary>
-        private static readonly string EditMethodName = "Load";
+        private static readonly string[] LoadNames = new string[]
+        {
+            "Load",
+            "LoadAll",
+            "LoadAsync",
+        };
+
+        private static readonly string[] ReturnNamesFormat = new string[]
+        {
+            "{0}", "{0}[]", "ResourceRequest"
+        };
 
         /// <summary>
         /// 無視する拡張子
@@ -53,7 +69,7 @@ namespace ResourcesSupport
             {
                 foreach (var names in usings.usings)
                 {
-                    foreach(var name in names) 
+                    foreach (var name in names)
                     {
                         usingNames.Add(names);
                     }
@@ -75,6 +91,7 @@ namespace ResourcesSupport
                 var removeWordLength = removeWord.Length;
                
                 // parameterで指定された取得処理を記述する
+                var enumValues = Enum.GetValues(typeof(LoadType)).Cast<int>().ToArray();
                 foreach (var parameter in setting.parameters)
                 {
                     // 指定した拡張子のファイルパスを取得
@@ -105,14 +122,24 @@ namespace ResourcesSupport
 
                     // 取得関数記述開始
                     var argumentName = "name";
-                    builder.AppendLineFormat("{0}public static {1} {2}({3} {4})", StringBuilderExtension.GetIndentString(indent), parameter.typeName, EditMethodName, editEnumName, argumentName);
-                    builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "{");
-                    indent++;
+                    var intValue = (int)parameter.editLoadType;
+                    for (int i = 0; i < enumValues.Length; ++i)
                     {
-                        builder.AppendLineFormat("{0}return Resources.Load<{1}>({2}[(int){3}]);", StringBuilderExtension.GetIndentString(indent), parameter.typeName, editPathArrayName, argumentName);
+                        if ((intValue & enumValues[i]) == 0)
+                        {
+                            continue;
+                        }
+                        
+                        builder.AppendLineFormat("{0}public static {1} {2}({3} {4})", 
+                            StringBuilderExtension.GetIndentString(indent), string.Format(ReturnNamesFormat[i], parameter.typeName), LoadNames[i], editEnumName, argumentName);
+                        builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "{");
+                        indent++;
+                        {
+                            builder.AppendLineFormat("{0}return Resources.{1}<{2}>({3}[(int){4}]);", StringBuilderExtension.GetIndentString(indent), LoadNames[i], parameter.typeName, editPathArrayName, argumentName);
+                        }
+                        indent--;
+                        builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "}");
                     }
-                    indent--;
-                    builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "}");
                 }
             }
             indent--;
