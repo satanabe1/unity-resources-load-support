@@ -21,4 +21,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e48a4e00f62f24e2781b11a880a1f698, type: 2}
   editUsings:
   - UnityEngine
-  isAuto: 1
+  isAuto: 0
