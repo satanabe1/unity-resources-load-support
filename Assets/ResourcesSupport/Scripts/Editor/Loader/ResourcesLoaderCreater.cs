@@ -83,7 +83,10 @@ namespace ResourcesSupport
                 var resourcesPaths = Directory.GetDirectories("Assets", "Resources", SearchOption.AllDirectories);
 
                 // Resourcesフォルダ内のファイルパスを取得
-                var filePaths = GetFilePaths(resourcesPaths, IgnoreExtensions);
+                // TODO : 最適化？
+                var filePaths = GetFilePaths(resourcesPaths, IgnoreExtensions)
+                    .Where(path => setting.ignoreFileNames.Contains(Path.GetFileNameWithoutExtension(path)) == false)
+                    .OrderBy(path => Path.GetFileNameWithoutExtension(path));
 
                 var removeWord = "Resources/";
                 var removeWordLength = removeWord.Length;

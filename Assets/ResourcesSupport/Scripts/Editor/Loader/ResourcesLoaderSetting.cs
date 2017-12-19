@@ -20,5 +20,7 @@ namespace ResourcesSupport
         }
 
         public bool isAuto;
+
+        public string[] ignoreFileNames;
     }
 }
