@@ -22,3 +22,4 @@ MonoBehaviour:
   editUsings:
   - UnityEngine
   isAuto: 0
+  ignoreFileNames: []
