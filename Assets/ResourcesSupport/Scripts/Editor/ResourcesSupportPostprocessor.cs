@@ -23,6 +23,7 @@ namespace ResourcesSupport
                     if (setting.isAuto)
                     {
                         ResourcesLoaderCreater.Create(setting);
+                        break;
                     }
                 }
             }
