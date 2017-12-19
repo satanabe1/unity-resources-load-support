@@ -123,7 +123,7 @@ namespace ResourcesSupport
                     builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "{");
                     indent++;
                     {
-                        builder.AppendLine(StringBuilderExtension.Join(paths, indent, "\"", "\""));
+                        builder.AppendLine(StringBuilderExtension.Join(paths, indent, "\"", "\"") + ",");
                     }
                     indent--;
                     builder.AppendLine(StringBuilderExtension.GetIndentString(indent) + "};");

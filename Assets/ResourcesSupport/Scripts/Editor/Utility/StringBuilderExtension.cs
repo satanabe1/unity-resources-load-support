@@ -61,7 +61,7 @@ namespace ResourcesSupport
             var indentString = GetIndentString(indent);
             builder.AppendLine(indentString + "public enum " + name);
             builder.AppendLine(indentString + "{");
-            builder.AppendLine(Join(elements.Select(element => ConvertEnumName(element)), indent + 1, elementPrefix, elementSuffix));
+            builder.AppendLine(Join(elements.Select(element => ConvertEnumName(element)), indent + 1, elementPrefix, elementSuffix) + ",");
             builder.AppendLine(indentString + "}");
         }
 
