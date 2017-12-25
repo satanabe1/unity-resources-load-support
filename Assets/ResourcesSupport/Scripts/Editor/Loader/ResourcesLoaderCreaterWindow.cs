@@ -7,7 +7,7 @@ namespace ResourcesSupport
     {
         public static void Open()
         {
-            GetWindow<ResourcesLoaderCreaterWindow>();
+            GetWindow<ResourcesLoaderCreaterWindow>(true);
         }
 
         private ResourcesLoaderSetting setting;
