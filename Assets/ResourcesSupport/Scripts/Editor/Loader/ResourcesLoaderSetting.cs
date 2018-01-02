@@ -21,6 +21,9 @@ namespace ResourcesSupport
 
         public bool isAuto;
 
+        [Header("除外ファイル名")]
         public string[] ignoreFileNames;
+        [Header("除外ファイルパスの正規表現 Assetsから始まる")]
+        public string[] ignorePathPatterns;
     }
 }

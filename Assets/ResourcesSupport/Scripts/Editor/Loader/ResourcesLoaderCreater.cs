@@ -84,8 +84,10 @@ namespace ResourcesSupport
 
                 // Resourcesフォルダ内のファイルパスを取得
                 // TODO : 最適化？
+                var ignorePatterns = setting.ignorePathPatterns.Select (pattern => new Regex (pattern, RegexOptions.Compiled));
                 var filePaths = GetFilePaths(resourcesPaths, IgnoreExtensions)
                     .Where(path => setting.ignoreFileNames.Contains(Path.GetFileNameWithoutExtension(path)) == false)
+                    .Where(path => ignorePatterns.Any(pattern => pattern.IsMatch(path)) == false)
                     .OrderBy(path => Path.GetFileNameWithoutExtension(path));
 
                 var removeWord = "Resources/";
